@@ -9,6 +9,7 @@ html {
 }
 
 h1 {
+  margin: 0;
   padding: .77rem 0;
   background-color: #010c3f;
   text-align: center;
@@ -197,4 +198,5 @@ h2 {
   font-size: .83rem;
   font-weight: 300;
   color: rgba(256, 256, 256, 0.8);
+  margin: 0;
 }
