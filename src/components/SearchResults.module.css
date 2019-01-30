@@ -1,0 +1,21 @@
+.root {
+  width: 50%;
+  /* min-height: 10rem; */
+  overflow-y: scroll;
+  /* padding: .88rem; */
+  padding: 2.27rem 1.16rem;
+  background-color: rgba(1, 12, 63, 0.7);
+  box-shadow: 0 4px 2px 2px #000000;
+}
+
+.title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.55rem;
+}
+
+@media only screen and (max-width: 1020px) {
+  .root {
+    width: 90%;
+    margin-bottom: 2rem;
+  }
+}
