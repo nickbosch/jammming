@@ -8,10 +8,22 @@ import SearchResults from './components/SearchResults';
 import Playlist from './components/Playlist';
 
 class App extends Component {
+  
+  constructor(props) {
+    super(props);
+    
+    // bind methods for correct 'this' keyword
+    this.performSearch = this.performSearch.bind(this);
+  }
+
+  performSearch(searchTerm) {
+    console.log(searchTerm);
+  }
+  
   render() {
     return (
       <div className="app">
-        <SearchBar />
+        <SearchBar onSearch={this.performSearch} />
         <PlaylistBuilder>
           <SearchResults />
           <Playlist />
