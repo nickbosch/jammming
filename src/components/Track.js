@@ -1,16 +1,34 @@
-import React from 'react';
-import styles from './Track.module.css';
+import React, { Component } from "react";
+import styles from "./Track.module.css";
 
-const Track = props => {
-  return (
-    <div className={styles.root}>
-      <div className={styles.information}>
-        <h3 className={styles.title}>{props.title}</h3>
-        <p className={styles.description}>{props.artist} | {props.album}</p>
+class Track extends Component {
+  
+  constructor(props) {
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick(e) {
+    e.preventDefault();
+    this.props.onClick(this.props.index);
+  }
+
+  render() {
+    return (
+      <div className={styles.root}>
+        <div className={styles.information}>
+          <h3 className={styles.title}>{this.props.title}</h3>
+          <p className={styles.description}>
+            {this.props.artist} | {this.props.album}
+          </p>
+        </div>
+        <button className={styles.action} onClick={this.handleClick}>
+          {this.props.inPlaylist ? "-" : "+"}
+        </button>
       </div>
-      <button className={styles.action}>{props.inPlaylist ? '-' : '+'}</button>
-    </div>
-  );
-}
+    );
+  }
+
+};
 
 export default Track;

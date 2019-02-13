@@ -88,13 +88,13 @@ class Spotify {
             return response.json();
           }
 
+          console.log(response);
           throw new Error("Request failed!");
         },
         networkError => console.log(networkError.message)
       )
       .then(jsonResponse => {
         let searchResults = [];
-        console.log(jsonResponse);
 
         if (jsonResponse.tracks) {
           searchResults.push(

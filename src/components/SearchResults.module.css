@@ -13,6 +13,11 @@
   font-size: 1.55rem;
 }
 
+.notFound {
+  display: block;
+  margin-top: 1rem;
+}
+
 @media only screen and (max-width: 1020px) {
   .root {
     width: 90%;
