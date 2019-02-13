@@ -15,13 +15,16 @@ class App extends Component {
     // initialise state
     this.state = {
       searchResults: [],
+      playlistName: 'New Playlist',
       playlistTracks: []
     };
 
     // bind methods for correct 'this' keyword
     this.performSearch = this.performSearch.bind(this);
+    this.renamePlaylist = this.renamePlaylist.bind(this);
     this.addTrackToPlaylist = this.addTrackToPlaylist.bind(this);
     this.removeTrackFromPlaylist = this.removeTrackFromPlaylist.bind(this);
+    this.savePlaylist = this.savePlaylist.bind(this);
   }
 
   componentDidMount() {
@@ -37,7 +40,10 @@ class App extends Component {
 
   addTrackToPlaylist(trackIndex) {
     this.setState({
-      playlistTracks: [...this.state.playlistTracks, this.state.searchResults[trackIndex]]
+      playlistTracks: [
+        ...this.state.playlistTracks,
+        this.state.searchResults[trackIndex]
+      ]
     });
   }
 
@@ -47,13 +53,31 @@ class App extends Component {
     this.setState({ playlistTracks });
   }
 
+  renamePlaylist(e) {
+    this.setState({ playlistName: e.target.value });
+  }
+
+  savePlaylist(e) {
+    e.preventDefault();
+    alert(this.state.playlistName);
+  }
+
   render() {
     return (
       <div className="app">
         <SearchBar onSearch={this.performSearch} />
         <PlaylistBuilder>
-          <SearchResults searchResults={this.state.searchResults} onAddTrack={this.addTrackToPlaylist} />
-          <Playlist tracks={this.state.playlistTracks} onRemoveTrack={this.removeTrackFromPlaylist} />
+          <SearchResults
+            searchResults={this.state.searchResults}
+            onAddTrack={this.addTrackToPlaylist}
+          />
+          <Playlist
+            name={this.state.playlistName}
+            tracks={this.state.playlistTracks}
+            onChangeName={this.renamePlaylist}
+            onRemoveTrack={this.removeTrackFromPlaylist}
+            onSave={this.savePlaylist}
+          />
         </PlaylistBuilder>
       </div>
     );
