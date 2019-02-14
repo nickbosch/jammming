@@ -151,7 +151,8 @@ class Spotify {
               return {
                 title: track.name,
                 album: track.album.name,
-                artist: track.artists.map(artist => artist.name).join(", ")
+                artist: track.artists.map(artist => artist.name).join(", "),
+                uri: track.uri
               };
             })
           );
@@ -160,14 +161,13 @@ class Spotify {
         return searchResults;
       });
   }
-  createPlaylist(name) {
-
+  createPlaylist(name, tracks) {
     if (!this.accessToken) return this.authenticate();
 
     return fetch(`https://api.spotify.com/v1/users/${this.userId}/playlists`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${this.accessToken}`,
+        Authorization: `Bearer ${this.accessToken}`,
         "Content-type": "application/json"
       },
       body: JSON.stringify({
@@ -186,7 +186,32 @@ class Spotify {
       )
       .then(jsonResponse => {
         if (jsonResponse.id) {
-          return jsonResponse.id;
+          let playlistId = jsonResponse.id;
+
+          return fetch(
+            `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${this.accessToken}`,
+                "Content-type": "application/json"
+              },
+              body: JSON.stringify({
+                uris: tracks
+              })
+            }
+          )
+            .then(
+              response => {
+                if (response.ok) return response.json();
+                console.log(response);
+                throw new Error("Request failed!");
+              },
+              networkError => console.log(networkError.message)
+            )
+            .then(jsonResponse => {
+              return jsonResponse;
+            });
         }
       });
   }

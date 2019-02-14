@@ -15,7 +15,7 @@ class App extends Component {
     // initialise state
     this.state = {
       searchResults: [],
-      playlistName: 'New Playlist',
+      playlistName: "New Playlist",
       playlistTracks: []
     };
 
@@ -58,7 +58,10 @@ class App extends Component {
 
   savePlaylist(e) {
     e.preventDefault();
-    this.spotify.createPlaylist(this.state.playlistName);
+    this.spotify.createPlaylist(
+      this.state.playlistName,
+      this.state.playlistTracks.map(track => track.uri)
+    );
   }
 
   render() {
