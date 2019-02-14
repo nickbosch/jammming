@@ -1,24 +1,56 @@
 class Spotify {
   constructor(clientId) {
+    this.storageKeys = {
+      storedState: "spotify_auth_state",
+      accessToken: "spotify_access_token",
+      accessTokenExpiresAt: "spotify_expires_at",
+      userId: "spotify_user_id"
+    };
+
     this.clienId = clientId;
-    this.stateKey = "spotify_auth_state";
-    this.accessTokenKey = "spotify_access_token";
 
-    let params = this.getHashParams();
-
-    this.accessToken = params.access_token;
-    this.state = params.state;
-    this.storedState = localStorage.getItem(this.stateKey);
+    for (let storageKey in this.storageKeys) {
+      this[storageKey] = localStorage.getItem(this.storageKeys[storageKey]);
+    }
 
     if (
-      this.accessToken &&
-      (this.state == null || this.state !== this.storedState)
+      !this.accessToken ||
+      this.accessTokenExpiresAt < Math.round(Date.now() / 1000)
     ) {
-      alert("There was an error during the authentication");
-    } else {
-      localStorage.removeItem(this.stateKey);
-      if (this.accessToken) {
-        console.log(this.accessToken);
+      for (let storageKey in this.storageKeys) {
+        if (storageKey !== "storedState") {
+          localStorage.removeItem(this.storageKeys[storageKey]);
+          this[storageKey] = null;
+        }
+      }
+
+      let params = this.getHashParams();
+
+      if (params) {
+        let storedState = localStorage.getItem(this.storageKeys.storedState);
+
+        if (
+          params.access_token &&
+          (params.state == null || params.state !== storedState)
+        ) {
+          alert("There was an error during the authentication");
+        } else if (params.access_token && params.expires_in) {
+          this.accessToken = params.access_token;
+          this.accessTokenExpiresAt =
+            Math.round(Date.now() / 1000) + Number.parseInt(params.expires_in);
+
+          localStorage.setItem(this.storageKeys.accessToken, this.accessToken);
+          localStorage.setItem(
+            this.storageKeys.accessTokenExpiresAt,
+            this.accessTokenExpiresAt
+          );
+          localStorage.removeItem(this.storageKeys.storedState);
+
+          this.getUser().then(user => {
+            this.userId = user.id;
+            localStorage.setItem(this.storageKeys.userId, this.userId);
+          });
+        }
       }
     }
   }
@@ -26,7 +58,7 @@ class Spotify {
     if (this.accessToken) return;
 
     let state = this.generateRandomString(16);
-    localStorage.setItem(this.stateKey, state);
+    localStorage.setItem("spotify_auth_state", state);
 
     let scope = "playlist-read-private playlist-modify-private";
     let url = "https://accounts.spotify.com/authorize";
@@ -66,12 +98,32 @@ class Spotify {
     }
     return text;
   }
+  getUser() {
+    return fetch("https://api.spotify.com/v1/me", {
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`
+      }
+    })
+      .then(
+        response => {
+          if (response.ok) return response.json();
+          console.log(response);
+          throw new Error("Request failed!");
+        },
+        networkError => console.log(networkError.message)
+      )
+      .then(jsonResponse => {
+        return jsonResponse;
+      });
+  }
   /**
    * Search Spotify for tracks matching a given search term
    * @param  {string} term The search term
    * @return {Array} The search results in an Array of Objects
    */
   search(term) {
+    if (!this.accessToken) return this.authenticate();
+
     return fetch(
       `https://api.spotify.com/v1/search?q=${encodeURIComponent(
         term
@@ -84,10 +136,7 @@ class Spotify {
     )
       .then(
         response => {
-          if (response.ok) {
-            return response.json();
-          }
-
+          if (response.ok) return response.json();
           console.log(response);
           throw new Error("Request failed!");
         },
@@ -109,6 +158,36 @@ class Spotify {
         }
 
         return searchResults;
+      });
+  }
+  createPlaylist(name) {
+
+    if (!this.accessToken) return this.authenticate();
+
+    return fetch(`https://api.spotify.com/v1/users/${this.userId}/playlists`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${this.accessToken}`,
+        "Content-type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        public: false,
+        description: "Created using Jammming!"
+      })
+    })
+      .then(
+        response => {
+          if (response.ok) return response.json();
+          console.log(response);
+          throw new Error("Request failed!");
+        },
+        networkError => console.log(networkError.message)
+      )
+      .then(jsonResponse => {
+        if (jsonResponse.id) {
+          return jsonResponse.id;
+        }
       });
   }
 }

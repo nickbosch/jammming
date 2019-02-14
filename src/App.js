@@ -32,7 +32,6 @@ class App extends Component {
   }
 
   performSearch(searchTerm) {
-    this.spotify.authenticate();
     this.spotify.search(searchTerm).then(results => {
       this.setState({ searchResults: results });
     });
@@ -59,7 +58,7 @@ class App extends Component {
 
   savePlaylist(e) {
     e.preventDefault();
-    alert(this.state.playlistName);
+    this.spotify.createPlaylist(this.state.playlistName);
   }
 
   render() {
