@@ -1,13 +1,12 @@
-import React from 'react';
-import styles from './SearchBar.module.css';
+import React from "react";
+import styles from "./SearchBar.module.css";
 
 class SearchBar extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
-      searchTerm: ''
-    }
+      searchTerm: ""
+    };
 
     this.handleTermChange = this.handleTermChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
@@ -19,9 +18,7 @@ class SearchBar extends React.Component {
   }
 
   handleSearch(e) {
-    if (this.state.searchTerm) {
-      this.props.onSearch(this.state.searchTerm);
-    }
+    this.props.onSearch(this.state.searchTerm);
   }
 
   handleKeyPress(e) {
@@ -38,12 +35,14 @@ class SearchBar extends React.Component {
           value={this.state.searchTerm}
           placeholder="Enter A Song Title"
           onChange={this.handleTermChange}
-          onKeyDown={this.handleKeyPress} />
-        <button className={styles.button} onClick={this.handleSearch}>SEARCH</button>
+          onKeyDown={this.handleKeyPress}
+        />
+        <button className={styles.button} onClick={this.handleSearch}>
+          SEARCH
+        </button>
       </div>
     );
   }
-
 }
 
 export default SearchBar;

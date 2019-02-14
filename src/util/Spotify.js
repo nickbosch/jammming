@@ -1,4 +1,21 @@
+/**
+ * NOTES:
+ * In general, it would probably be sensible to use a package such as axios and
+ * create a helper/wrapper function for all API calls to save repetition (instead
+ * of calling fetch direclty each time). However, due to the small number of API
+ * endpoints used in this project, I have decided to leave each one in.
+ */
+
+/**
+ * Base URL for all API calls.
+ */
+const API_BASE = "https://api.spotify.com/v1";
+
 class Spotify {
+  /**
+   * Create a new instance of the Spotify class.
+   * @param {string} clientId The Client ID token used to connect to the Spotify API.
+   */
   constructor(clientId) {
     this.storageKeys = {
       storedState: "spotify_auth_state",
@@ -33,6 +50,7 @@ class Spotify {
           params.access_token &&
           (params.state == null || params.state !== storedState)
         ) {
+          // check provided state parameter against storedState for security purposes
           alert("There was an error during the authentication");
         } else if (params.access_token && params.expires_in) {
           this.accessToken = params.access_token;
@@ -54,11 +72,15 @@ class Spotify {
       }
     }
   }
+  /**
+   * Authenticate with Spotify using the implicit-grant flow
+   * @return {null}
+   */
   authenticate() {
     if (this.accessToken) return;
 
     let state = this.generateRandomString(16);
-    localStorage.setItem("spotify_auth_state", state);
+    localStorage.setItem(this.storageKeys.storedState, state);
 
     let scope = "playlist-read-private playlist-modify-private";
     let url = "https://accounts.spotify.com/authorize";
@@ -72,7 +94,7 @@ class Spotify {
   }
   /**
    * Obtains parameters from the hash of the URL
-   * @return Object
+   * @return {Object}
    */
   getHashParams() {
     var hashParams = {};
@@ -98,8 +120,12 @@ class Spotify {
     }
     return text;
   }
+  /**
+   * Retrieve the details of the currently logged-in Spotify user
+   * @return {Promise}
+   */
   getUser() {
-    return fetch("https://api.spotify.com/v1/me", {
+    return fetch(`${API_BASE}/me`, {
       headers: {
         Authorization: `Bearer ${this.accessToken}`
       }
@@ -119,15 +145,16 @@ class Spotify {
   /**
    * Search Spotify for tracks matching a given search term
    * @param  {string} term The search term
-   * @return {Array} The search results in an Array of Objects
+   * @return {Promise}
    */
   search(term) {
-    if (!this.accessToken) return this.authenticate();
+    if (!this.accessToken) {
+      this.authenticate();
+      return Promise();
+    }
 
     return fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-        term
-      )}&type=track`,
+      `${API_BASE}/search?q=${encodeURIComponent(term)}&type=track`,
       {
         headers: {
           Authorization: `Bearer ${this.accessToken}`
@@ -161,10 +188,19 @@ class Spotify {
         return searchResults;
       });
   }
+  /**
+   * Create a new private playlist for the currently logged-in Spotify user
+   * @param  {string} name The name of the playlist
+   * @param  {Array} tracks URIs of each track object to be added to the playlist
+   * @return {Promise}
+   */
   createPlaylist(name, tracks) {
-    if (!this.accessToken) return this.authenticate();
+    if (!this.accessToken) {
+      this.authenticate();
+      return Promise();
+    }
 
-    return fetch(`https://api.spotify.com/v1/users/${this.userId}/playlists`, {
+    return fetch(`${API_BASE}/users/${this.userId}/playlists`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${this.accessToken}`,
@@ -188,19 +224,16 @@ class Spotify {
         if (jsonResponse.id) {
           let playlistId = jsonResponse.id;
 
-          return fetch(
-            `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${this.accessToken}`,
-                "Content-type": "application/json"
-              },
-              body: JSON.stringify({
-                uris: tracks
-              })
-            }
-          )
+          return fetch(`${API_BASE}/playlists/${playlistId}/tracks`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${this.accessToken}`,
+              "Content-type": "application/json"
+            },
+            body: JSON.stringify({
+              uris: tracks
+            })
+          })
             .then(
               response => {
                 if (response.ok) return response.json();

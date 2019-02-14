@@ -32,9 +32,11 @@ class App extends Component {
   }
 
   performSearch(searchTerm) {
-    this.spotify.search(searchTerm).then(results => {
-      this.setState({ searchResults: results });
-    });
+    if (searchTerm) {
+      this.spotify.search(searchTerm).then(results => {
+        this.setState({ searchResults: results });
+      });
+    }
   }
 
   addTrackToPlaylist(trackIndex) {
@@ -58,10 +60,14 @@ class App extends Component {
 
   savePlaylist(e) {
     e.preventDefault();
-    this.spotify.createPlaylist(
-      this.state.playlistName,
-      this.state.playlistTracks.map(track => track.uri)
-    );
+    if (this.state.playlistName) {
+      this.spotify.createPlaylist(
+        this.state.playlistName,
+        this.state.playlistTracks.map(track => track.uri)
+      );
+    } else {
+      alert("Please enter a name for the playlist.");
+    }
   }
 
   render() {

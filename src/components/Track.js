@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import styles from "./Track.module.css";
 
 class Track extends Component {
-  
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
@@ -28,7 +27,6 @@ class Track extends Component {
       </div>
     );
   }
-
-};
+}
 
 export default Track;
