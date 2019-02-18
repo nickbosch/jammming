@@ -46,11 +46,11 @@ class Spotify {
       if (params) {
         let storedState = localStorage.getItem(this.storageKeys.storedState);
 
+        // check provided state parameter against storedState for security purposes
         if (
           params.access_token &&
           (params.state == null || params.state !== storedState)
         ) {
-          // check provided state parameter against storedState for security purposes
           alert("There was an error during the authentication");
         } else if (params.access_token && params.expires_in) {
           this.accessToken = params.access_token;
@@ -127,7 +127,7 @@ class Spotify {
   getUser() {
     return fetch(`${API_BASE}/me`, {
       headers: {
-        Authorization: `Bearer ${this.accessToken}`
+        "Authorization": `Bearer ${this.accessToken}`
       }
     })
       .then(
@@ -157,7 +157,7 @@ class Spotify {
       `${API_BASE}/search?q=${encodeURIComponent(term)}&type=track`,
       {
         headers: {
-          Authorization: `Bearer ${this.accessToken}`
+          "Authorization": `Bearer ${this.accessToken}`
         }
       }
     )
@@ -203,7 +203,7 @@ class Spotify {
     return fetch(`${API_BASE}/users/${this.userId}/playlists`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${this.accessToken}`,
+        "Authorization": `Bearer ${this.accessToken}`,
         "Content-type": "application/json"
       },
       body: JSON.stringify({
@@ -227,7 +227,7 @@ class Spotify {
           return fetch(`${API_BASE}/playlists/${playlistId}/tracks`, {
             method: "POST",
             headers: {
-              Authorization: `Bearer ${this.accessToken}`,
+              "Authorization": `Bearer ${this.accessToken}`,
               "Content-type": "application/json"
             },
             body: JSON.stringify({

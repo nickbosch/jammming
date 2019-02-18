@@ -6,7 +6,6 @@ const TrackList = ({ tracks, inPlaylist, onTrackClick }) => {
   return (
     <div className={styles.root}>
       {tracks.map((track, index) => {
-        // add index to the track ID to ensure each key is unique when tracks are added to the playlist multiple times
         return (
           <Track
             key={index}
